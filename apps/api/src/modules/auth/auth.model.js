@@ -42,11 +42,11 @@ const userSchema = new Schema(
       default: false,
     },
     otp: {
-      select: false,
       code: {
         type: String,
         minlength: 4,
         maxlength: 6,
+        select: false,
       },
       expiresAt: {
         type: Date,
