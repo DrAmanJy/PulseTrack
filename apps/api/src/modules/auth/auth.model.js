@@ -1,5 +1,7 @@
 import { compare, hash } from 'bcrypt';
 import { model, Schema } from 'mongoose';
+import crypto from 'crypto';
+import { generateNumericOTP } from '../../shared/utils/otp.js';
 
 const userSchema = new Schema(
   {
@@ -44,14 +46,13 @@ const userSchema = new Schema(
     otp: {
       code: {
         type: String,
-        minlength: 4,
-        maxlength: 6,
         select: false,
       },
       expiresAt: {
         type: Date,
       },
     },
+    refreshToken: { type: String, select: false },
     authProvider: {
       type: String,
       enum: ['local', 'google'],
@@ -75,30 +76,83 @@ const userSchema = new Schema(
         delete ret._id;
         delete ret.password;
         delete ret.otp;
+        delete ret.refreshToken;
       },
     },
   },
 );
 
-userSchema.pre('save', async function () {
-  if (!this.isModified('password') || !this.password) {
-    return;
-  }
+// ==========================================
+//          MIDDLEWARE (HOOKS)
+// ==========================================
 
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password') || !this.password) {
+    return next();
+  }
   try {
-    this.password = await hash(this.password, 10);
+    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
+    this.password = await hash(this.password, saltRounds);
+    next();
   } catch (error) {
-    console.log(error);
+    return next(error);
   }
 });
 
-userSchema.methods.comparePassword = async function (candidatePassword) {
+// ==========================================
+//          INSTANCE METHODS
+// ==========================================
+
+userSchema.methods.comparePassword = async function (inputPassword) {
   if (!this.password) return false;
-  return await compare(candidatePassword, this.password);
+  return await compare(inputPassword, this.password);
 };
 
-//todo : generateOTP
-//todo : verifyOTP
+// ------------------------------------------
+//          OTP Methods
+// ------------------------------------------
+
+userSchema.methods.generateOTP = async function () {
+  const verifyCode = generateNumericOTP(6);
+  const baseSalt = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
+  const otpSaltRounds = Math.max(Math.floor(baseSalt / 2), 4);
+
+  const hashVerifyCode = await hash(verifyCode, otpSaltRounds);
+  this.otp = {
+    code: hashVerifyCode,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+  };
+  return verifyCode;
+};
+
+userSchema.methods.verifyOTP = async function (verifyCode) {
+  if (!this.otp || !this.otp.code || this.otp.expiresAt < Date.now()) {
+    return false;
+  }
+  return await compare(verifyCode, this.otp.code);
+};
+
+// ------------------------------------------
+//          Refresh Token Methods
+// ------------------------------------------
+
+userSchema.methods.hashAndSetRefreshToken = function (refreshToken) {
+  this.refreshToken = crypto
+    .createHash('sha256')
+    .update(refreshToken)
+    .digest('base64');
+};
+
+userSchema.methods.verifyRefreshToken = function (refreshToken) {
+  if (!this.refreshToken) return false;
+
+  const hashedInputToken = crypto
+    .createHash('sha256')
+    .update(refreshToken)
+    .digest('base64');
+
+  return this.refreshToken === hashedInputToken;
+};
 
 const User = model('User', userSchema);
 export default User;
