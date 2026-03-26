@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import { validate } from '../../shared/middleware/validate.middleware.js';
+import { loginSchema, registerSchema } from '@pulsetrack/validations';
+import * as authController from './auth.controller.js';
 
 const routes = Router();
 
@@ -9,9 +12,9 @@ const notImplemented = (req, res) => {
 };
 
 // --- Local Authentication ---
-routes.post('/register', notImplemented);
-routes.post('/login', notImplemented);
-routes.post('/logout', notImplemented);
+routes.post('/register', validate(registerSchema), authController.registerUser);
+routes.post('/login', validate(loginSchema), authController.loginUser);
+routes.post('/logout', authController.logoutUser);
 
 // --- Google OAuth ---
 routes.get('/google', notImplemented);
