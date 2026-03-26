@@ -1,3 +1,4 @@
+import { ZodError } from 'zod';
 import { AppError } from '../errors/AppError.js';
 export const errorHandler = (error, req, res, next) => {
   if (res.headersSent) {
@@ -7,11 +8,20 @@ export const errorHandler = (error, req, res, next) => {
   const isProd = process.env.NODE_ENV === 'production';
 
   let statusCode = 500;
+  // let code = 'not_defined';
   let message = 'Something went wrong on the server';
 
   if (error instanceof AppError) {
     statusCode = error.statusCode;
     message = error.message;
+  }
+
+  if (error instanceof ZodError) {
+    statusCode = 400;
+    const firstIssue = error.issues?.[0];
+    message =
+      (typeof firstIssue?.message === 'string' && firstIssue.message) ||
+      'Invalid input data';
   }
 
   if (error.name === 'JsonWebTokenError') {
