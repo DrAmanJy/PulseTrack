@@ -31,7 +31,7 @@ routes.post('/forgot-password', notImplemented);
 routes.post('/reset-password', notImplemented);
 
 // --- Token Management ---
-routes.post('/refresh-token', notImplemented);
+routes.post('/refresh-token', authController.refreshAccessToken);
 
 // --- Protected User Profile Routes (Require Login) ---
 routes.get('/me', notImplemented);

@@ -1,4 +1,5 @@
 import { renderVerifyOtpEmail } from '@pulsetrack/emails';
+import jwt from 'jsonwebtoken';
 import { AppError } from '../../shared/errors/AppError.js';
 import { generateToken } from '../../shared/utils/generateToken.js';
 import { sendEmail } from '../../shared/utils/sendEmail.js';
@@ -139,5 +140,51 @@ export const verifyUser = async (req, res) => {
     message: 'User verified and logged in successfully.',
     user: existingUser,
     accessToken,
+  });
+};
+
+export const refreshAccessToken = async (req, res) => {
+  const { refreshToken: incomingRefreshToken } = req.cookies;
+
+  if (!incomingRefreshToken) {
+    throw new AppError('Unauthorized: No refresh token provided.', 401);
+  }
+
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.JWT_REFRESH_SECRET,
+    );
+  } catch (error) {
+    throw new AppError('Unauthorized: Invalid or expired refresh token.', 401);
+  }
+
+  const existingUser = await User.findById(decodedToken.id).select(
+    '+refreshToken',
+  );
+
+  if (!existingUser) {
+    throw new AppError('Unauthorized: User no longer exists.', 401);
+  }
+
+  if (!existingUser.verifyRefreshToken(incomingRefreshToken)) {
+    throw new AppError('Forbidden: Invalid refresh token session.', 403);
+  }
+
+  // 5. Generate BRAND NEW tokens (Token Rotation)
+  const payload = { id: existingUser._id, role: existingUser.role };
+  const newAccessToken = generateToken(payload, 'access');
+  const newRefreshToken = generateToken(payload, 'refresh');
+
+  existingUser.lastLogin = Date.now();
+  existingUser.hashAndSetRefreshToken(newRefreshToken);
+
+  await existingUser.save();
+
+  res.status(200).cookie('refreshToken', newRefreshToken, cookieOptions).json({
+    status: 'success',
+    message: 'Access token refreshed successfully.',
+    accessToken: newAccessToken,
   });
 };
