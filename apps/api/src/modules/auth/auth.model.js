@@ -2,6 +2,7 @@ import { compare, hash } from 'bcrypt';
 import { model, Schema } from 'mongoose';
 import crypto from 'crypto';
 import { generateNumericOTP } from '../../shared/utils/otp.js';
+import { hashToken } from '../../shared/utils/hashToken.js';
 
 const userSchema = new Schema(
   {
@@ -30,29 +31,19 @@ const userSchema = new Schema(
       select: false,
     },
     profileImage: {
-      url: {
-        type: String,
-        default: '',
-      },
-      publicId: {
-        type: String,
-        default: '',
-      },
+      url: { type: String, default: '' },
+      publicId: { type: String, default: '' },
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
+    isVerified: { type: Boolean, default: false },
     otp: {
-      code: {
-        type: String,
-        select: false,
-      },
-      expiresAt: {
-        type: Date,
-      },
+      code: { type: String, select: false },
+      expiresAt: { type: Date },
     },
     refreshToken: { type: String, select: false },
+    resetToken: {
+      token: { type: String, select: false },
+      expiresAt: { type: Date },
+    },
     authProvider: {
       type: String,
       enum: ['local', 'google'],
@@ -63,9 +54,7 @@ const userSchema = new Schema(
       enum: ['user', 'admin'],
       default: 'user',
     },
-    lastLogin: {
-      type: Date,
-    },
+    lastLogin: { type: Date },
   },
   {
     versionKey: false,
@@ -77,6 +66,7 @@ const userSchema = new Schema(
         delete ret.password;
         delete ret.otp;
         delete ret.refreshToken;
+        delete ret.resetToken; // 🐛 Fixed: Blocked the reset token from leaking!
       },
     },
   },
@@ -88,7 +78,10 @@ const userSchema = new Schema(
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password') || !this.password) return;
-  const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
+  const saltRounds = Number.parseInt(
+    process.env.BCRYPT_SALT_ROUNDS || '10',
+    10,
+  );
   this.password = await hash(this.password, saltRounds);
 });
 
@@ -107,7 +100,7 @@ userSchema.methods.comparePassword = async function (inputPassword) {
 
 userSchema.methods.generateOtp = async function () {
   const verifyCode = generateNumericOTP(6);
-  const baseSalt = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
+  const baseSalt = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
   const otpSaltRounds = Math.max(Math.floor(baseSalt / 2), 4);
 
   const hashVerifyCode = await hash(verifyCode, otpSaltRounds);
@@ -126,25 +119,26 @@ userSchema.methods.verifyOtp = async function (verifyCode) {
 };
 
 // ------------------------------------------
-//          Refresh Token Methods
+//          Token Methods
 // ------------------------------------------
 
 userSchema.methods.hashAndSetRefreshToken = function (refreshToken) {
-  this.refreshToken = crypto
-    .createHash('sha256')
-    .update(refreshToken)
-    .digest('base64');
+  this.refreshToken = hashToken(refreshToken);
 };
 
 userSchema.methods.verifyRefreshToken = function (refreshToken) {
   if (!this.refreshToken) return false;
-
-  const hashedInputToken = crypto
-    .createHash('sha256')
-    .update(refreshToken)
-    .digest('base64');
-
+  const hashedInputToken = hashToken(refreshToken);
   return this.refreshToken === hashedInputToken;
+};
+
+userSchema.methods.hashAndSetResetToken = function (resetToken) {
+  const hashedToken = hashToken(resetToken);
+
+  this.resetToken = {
+    token: hashedToken,
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+  };
 };
 
 const User = model('User', userSchema);
