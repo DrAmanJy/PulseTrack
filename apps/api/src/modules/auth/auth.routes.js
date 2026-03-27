@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../../shared/middleware/validate.middleware.js';
 import {
+  emailOnlySchema,
   loginSchema,
   registerSchema,
   verifyOtpSchema,
@@ -45,7 +46,12 @@ routes.post(
   validate(verifyOtpSchema),
   authController.verifyUser,
 );
-routes.post('/resend-otp', otpLimiter, notImplemented);
+routes.post(
+  '/resend-otp',
+  otpLimiter,
+  validate(emailOnlySchema),
+  authController.resendOtp,
+);
 routes.post('/forgot-password', authLimiter, notImplemented);
 routes.post('/reset-password', authLimiter, notImplemented);
 
