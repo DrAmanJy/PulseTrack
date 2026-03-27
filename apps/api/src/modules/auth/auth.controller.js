@@ -1,9 +1,14 @@
-import { renderVerifyOtpEmail } from '@pulsetrack/emails';
+import {
+  renderResetPasswordEmail,
+  renderVerifyOtpEmail,
+} from '@pulsetrack/emails';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { AppError } from '../../shared/errors/AppError.js';
 import { generateToken } from '../../shared/utils/generateToken.js';
 import { sendEmail } from '../../shared/utils/sendEmail.js';
 import User from './auth.model.js';
+import { hashToken } from '../../shared/utils/hashToken.js';
 
 // ==========================================
 //          CONFIGURATION
@@ -214,5 +219,73 @@ export const resendOtp = async (req, res) => {
   res.status(200).json({
     status: 'success',
     message: 'A new verification code has been sent.',
+  });
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const genericMessage =
+    'If an account with that email exists, a password reset link has been sent.';
+
+  const existingUser = await User.findOne({ email });
+
+  if (!existingUser) {
+    return res.status(200).json({
+      status: 'success',
+      message: genericMessage,
+    });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('base64url');
+
+  existingUser.hashAndSetResetToken(resetToken);
+  await existingUser.save();
+
+  const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+  await sendEmail(
+    email,
+    'Reset Your Password',
+    renderResetPasswordEmail(existingUser.name, resetLink),
+  );
+
+  res.status(200).json({
+    status: 'success',
+    message: genericMessage,
+  });
+};
+
+export const resetPassword = async (req, res) => {
+  const { newPassword } = req.body;
+  const { token } = req.params;
+
+  const hashedInputToken = hashToken(token);
+
+  const existingUser = await User.findOne({
+    'resetToken.token': hashedInputToken,
+    'resetToken.expiresAt': { $gt: Date.now() },
+  });
+
+  if (!existingUser) {
+    throw new AppError('Token is invalid or has expired.', 400);
+  }
+
+  existingUser.password = newPassword;
+  existingUser.resetToken = undefined;
+
+  const payload = { id: existingUser._id, role: existingUser.role };
+  const accessToken = generateToken(payload, 'access');
+
+  const newRefreshToken = generateToken(payload, 'refresh');
+
+  existingUser.lastLogin = Date.now();
+  existingUser.hashAndSetRefreshToken(newRefreshToken);
+
+  await existingUser.save();
+
+  res.status(200).cookie('refreshToken', newRefreshToken, cookieOptions).json({
+    status: 'success',
+    message: 'Password reset successful.',
+    accessToken,
   });
 };
