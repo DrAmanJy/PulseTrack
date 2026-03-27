@@ -28,3 +28,11 @@ export const passwordField = z
   })
   .min(6, { error: 'Min 6 chars' })
   .max(128, { error: 'Max 128 chars' });
+
+export const verificationCode = z
+  .string({
+    error: (issue) =>
+      issue === undefined ? 'otp is required' : 'otp must be a string',
+  })
+  .length(6, 'otp must be 6 digits')
+  .regex(/^\d+$/, 'otp must contain only numbers');
