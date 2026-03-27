@@ -188,3 +188,31 @@ export const refreshAccessToken = async (req, res) => {
     accessToken: newAccessToken,
   });
 };
+
+export const resendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  const existingUser = await User.findOne({ email });
+
+  if (!existingUser) {
+    throw new AppError('User not found with this email.', 404);
+  }
+
+  if (existingUser.isVerified) {
+    throw new AppError('Account is already verified. Please log in.', 400);
+  }
+
+  const plainTextOtp = await existingUser.generateOtp();
+  await existingUser.save();
+
+  await sendEmail(
+    email,
+    'Your New PulseTrack Verification Code',
+    renderVerifyOtpEmail(plainTextOtp),
+  );
+
+  res.status(200).json({
+    status: 'success',
+    message: 'A new verification code has been sent.',
+  });
+};
