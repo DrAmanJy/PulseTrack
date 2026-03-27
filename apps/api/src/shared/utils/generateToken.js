@@ -1,4 +1,4 @@
-import { sign } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 export const generateToken = (payload, type = 'access') => {
   const secret =
@@ -11,5 +11,5 @@ export const generateToken = (payload, type = 'access') => {
       ? process.env.JWT_REFRESH_EXPIRES_IN
       : process.env.JWT_ACCESS_EXPIRES_IN;
 
-  return sign(payload, secret, { expiresIn });
+  return jwt.sign(payload, secret, { expiresIn });
 };
