@@ -86,17 +86,10 @@ const userSchema = new Schema(
 //          MIDDLEWARE (HOOKS)
 // ==========================================
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password') || !this.password) {
-    return next();
-  }
-  try {
-    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
-    this.password = await hash(this.password, saltRounds);
-    next();
-  } catch (error) {
-    return next(error);
-  }
+userSchema.pre('save', async function () {
+  if (!this.isModified('password') || !this.password) return;
+  const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
+  this.password = await hash(this.password, saltRounds);
 });
 
 // ==========================================
@@ -112,7 +105,7 @@ userSchema.methods.comparePassword = async function (inputPassword) {
 //          OTP Methods
 // ------------------------------------------
 
-userSchema.methods.generateOTP = async function () {
+userSchema.methods.generateOtp = async function () {
   const verifyCode = generateNumericOTP(6);
   const baseSalt = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
   const otpSaltRounds = Math.max(Math.floor(baseSalt / 2), 4);
@@ -125,7 +118,7 @@ userSchema.methods.generateOTP = async function () {
   return verifyCode;
 };
 
-userSchema.methods.verifyOTP = async function (verifyCode) {
+userSchema.methods.verifyOtp = async function (verifyCode) {
   if (!this.otp || !this.otp.code || this.otp.expiresAt < Date.now()) {
     return false;
   }
