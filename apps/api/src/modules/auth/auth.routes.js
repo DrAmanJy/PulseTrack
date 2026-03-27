@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { validate } from '../../shared/middleware/validate.middleware.js';
-import { loginSchema, registerSchema } from '@pulsetrack/validations';
+import {
+  loginSchema,
+  registerSchema,
+  verifyOtpSchema,
+} from '@pulsetrack/validations';
 import * as authController from './auth.controller.js';
 
 const routes = Router();
@@ -21,7 +25,7 @@ routes.get('/google', notImplemented);
 routes.get('/google/callback', notImplemented);
 
 // --- OTP & Password Recovery ---
-routes.post('/verify-otp', notImplemented);
+routes.post('/verify', validate(verifyOtpSchema), authController.verifyUser);
 routes.post('/resend-otp', notImplemented);
 routes.post('/forgot-password', notImplemented);
 routes.post('/reset-password', notImplemented);
