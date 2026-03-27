@@ -3,6 +3,7 @@ import { validate } from '../../shared/middleware/validate.middleware.js';
 import {
   emailOnlySchema,
   loginSchema,
+  newPasswordOnlySchema,
   registerSchema,
   verifyOtpSchema,
 } from '@pulsetrack/validations';
@@ -52,8 +53,18 @@ routes.post(
   validate(emailOnlySchema),
   authController.resendOtp,
 );
-routes.post('/forgot-password', authLimiter, notImplemented);
-routes.post('/reset-password', authLimiter, notImplemented);
+routes.post(
+  '/forgot-password',
+  authLimiter,
+  validate(emailOnlySchema),
+  authController.forgotPassword,
+);
+routes.post(
+  '/reset-password/:token',
+  authLimiter,
+  validate(newPasswordOnlySchema),
+  authController.resetPassword,
+);
 
 // --- Token Management ---
 routes.post('/refresh-token', authController.refreshAccessToken);
