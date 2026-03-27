@@ -45,7 +45,7 @@ export const errorHandler = (error, req, res, next) => {
   }
 
   const responseBody = {
-    success: false,
+    status: 'error',
     error: {
       message,
     },
