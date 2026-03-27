@@ -68,3 +68,7 @@ export const verifyOtpSchema = z.object({
 export const emailOnlySchema = z.object({
   email: emailField,
 });
+
+export const newPasswordOnlySchema = z.object({
+  newPassword: passwordField,
+});
