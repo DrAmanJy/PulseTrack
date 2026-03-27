@@ -6,6 +6,10 @@ import {
   verifyOtpSchema,
 } from '@pulsetrack/validations';
 import * as authController from './auth.controller.js';
+import {
+  authLimiter,
+  otpLimiter,
+} from '../../shared/middleware/rateLimiter.middleware.js';
 
 const routes = Router();
 
@@ -16,19 +20,34 @@ const notImplemented = (req, res) => {
 };
 
 // --- Local Authentication ---
-routes.post('/register', validate(registerSchema), authController.registerUser);
-routes.post('/login', validate(loginSchema), authController.loginUser);
+routes.post(
+  '/register',
+  authLimiter,
+  validate(registerSchema),
+  authController.registerUser,
+);
+routes.post(
+  '/login',
+  authLimiter,
+  validate(loginSchema),
+  authController.loginUser,
+);
 routes.post('/logout', authController.logoutUser);
 
 // --- Google OAuth ---
-routes.get('/google', notImplemented);
-routes.get('/google/callback', notImplemented);
+routes.get('/google', authLimiter, notImplemented);
+routes.get('/google/callback', authLimiter, notImplemented);
 
 // --- OTP & Password Recovery ---
-routes.post('/verify', validate(verifyOtpSchema), authController.verifyUser);
-routes.post('/resend-otp', notImplemented);
-routes.post('/forgot-password', notImplemented);
-routes.post('/reset-password', notImplemented);
+routes.post(
+  '/verify',
+  authLimiter,
+  validate(verifyOtpSchema),
+  authController.verifyUser,
+);
+routes.post('/resend-otp', otpLimiter, notImplemented);
+routes.post('/forgot-password', authLimiter, notImplemented);
+routes.post('/reset-password', authLimiter, notImplemented);
 
 // --- Token Management ---
 routes.post('/refresh-token', authController.refreshAccessToken);
