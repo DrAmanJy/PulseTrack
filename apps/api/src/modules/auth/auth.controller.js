@@ -1,5 +1,7 @@
+import { renderVerifyOtpEmail } from '@pulsetrack/emails';
 import { AppError } from '../../shared/errors/AppError.js';
 import { generateToken } from '../../shared/utils/generateToken.js';
+import { sendEmail } from '../../shared/utils/sendEmail.js';
 import User from './auth.model.js';
 
 // ==========================================
@@ -31,12 +33,15 @@ export const registerUser = async (req, res) => {
     lastLogin: Date.now(),
   });
 
-  const plainTextOtp = await newUser.generateOTP();
+  const plainTextOtp = await newUser.generateOtp();
 
   await newUser.save();
 
-  // TODO: implement otp email (using plainTextOtp)
-  // await sendEmail({ to: email, ... })
+  await sendEmail(
+    email,
+    'Your PulseTrack Verification Code',
+    renderVerifyOtpEmail(plainTextOtp),
+  );
 
   res.status(201).json({
     status: 'success',
@@ -98,5 +103,41 @@ export const logoutUser = async (req, res) => {
   res.status(200).json({
     status: 'success',
     message: 'Logged out successfully',
+  });
+};
+
+export const verifyUser = async (req, res) => {
+  const { email, otp } = req.body;
+
+  const existingUser = await User.findOne({ email }).select(
+    '+otp.code +otp.expiresAt',
+  );
+
+  if (!existingUser) throw new AppError('User not found with this email.', 404);
+  if (existingUser.isVerified)
+    throw new AppError('Account is already verified. Please log in.', 400);
+
+  const isValidOtp = await existingUser.verifyOtp(otp);
+
+  if (!isValidOtp)
+    throw new AppError('Invalid or expired verification code.', 400);
+
+  existingUser.isVerified = true;
+  existingUser.otp = undefined;
+
+  const payload = { id: existingUser._id, role: existingUser.role };
+  const accessToken = generateToken(payload, 'access');
+  const refreshToken = generateToken(payload, 'refresh');
+
+  existingUser.lastLogin = Date.now();
+  existingUser.hashAndSetRefreshToken(refreshToken);
+
+  await existingUser.save();
+
+  res.status(200).cookie('refreshToken', refreshToken, cookieOptions).json({
+    status: 'success',
+    message: 'User verified and logged in successfully.',
+    user: existingUser,
+    accessToken,
   });
 };
