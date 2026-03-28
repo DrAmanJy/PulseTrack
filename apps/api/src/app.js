@@ -4,9 +4,10 @@ import { errorHandler } from './shared/middleware/error.middleware.js';
 import { AppError } from './shared/errors/AppError.js';
 import { globalLimiter } from './shared/middleware/rateLimiter.middleware.js';
 import { env } from './config/env.js';
+import { httpLogger } from './shared/logger/httpLogger.js';
 
 const app = e();
-
+app.use(httpLogger);
 app.use(e.json({ limit: '1kb' }));
 
 app.use(globalLimiter);

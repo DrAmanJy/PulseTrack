@@ -35,7 +35,7 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
     .default('info'),
-  LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().default(5).max(20),
+  LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().max(20).default(5),
   RATE_LIMIT_WINDOW_MINUTES: z.coerce.number().positive().default(15),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().positive().default(100),
 });
