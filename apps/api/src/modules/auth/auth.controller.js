@@ -9,13 +9,14 @@ import { generateToken } from '../../shared/utils/generateToken.js';
 import { sendEmail } from '../../shared/utils/sendEmail.js';
 import User from './auth.model.js';
 import { hashToken } from '../../shared/utils/hashToken.js';
+import { env } from '../../config/env.js';
 
 // ==========================================
 //          CONFIGURATION
 // ==========================================
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: env.NODE_ENV === 'production',
   sameSite: 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
@@ -102,7 +103,7 @@ export const logoutUser = async (req, res) => {
 
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
     sameSite: 'strict',
   });
 
@@ -157,10 +158,7 @@ export const refreshAccessToken = async (req, res) => {
 
   let decodedToken;
   try {
-    decodedToken = jwt.verify(
-      incomingRefreshToken,
-      process.env.JWT_REFRESH_SECRET,
-    );
+    decodedToken = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_SECRET);
   } catch (error) {
     throw new AppError('Unauthorized: Invalid or expired refresh token.', 401);
   }
@@ -241,7 +239,7 @@ export const forgotPassword = async (req, res) => {
   existingUser.hashAndSetResetToken(resetToken);
   await existingUser.save();
 
-  const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+  const resetLink = `${env.CLIENT_URL}/reset-password/${resetToken}`;
 
   await sendEmail(
     email,
