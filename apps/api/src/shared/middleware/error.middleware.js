@@ -36,15 +36,12 @@ export const errorHandler = (error, req, res, next) => {
     message = 'Your session has expired. Please log in again.';
   }
 
-  if (!isProd) {
-    logger.error('ErrorHandler:', {
-      path: req.path,
-      method: req.method,
-      statusCode,
-      message,
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-  }
+  logger.error({
+    path: req.path,
+    method: req.method,
+    statusCode,
+    err: error,
+  });
 
   const responseBody = {
     status: 'error',
