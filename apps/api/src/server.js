@@ -1,7 +1,8 @@
 import app from './app.js';
 import { connectDb } from './config/db.js';
+import { env } from './config/env.js';
 
-const PORT = process.env.APP_PORT;
+const PORT = env.PORT;
 
 (async () => {
   try {
