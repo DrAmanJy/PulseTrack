@@ -1,17 +1,18 @@
 import app from './app.js';
 import { connectDb } from './config/db.js';
 import { env } from './config/env.js';
+import { logger } from './shared/logger/logger.js';
 
-const PORT = env.PORT;
+const PORT = env.APP_PORT;
 
 (async () => {
   try {
     await connectDb();
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+      logger.info(`Server is running on http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error(
+    logger.error(
       'Critical: Server failed to start due to DB connection error.',
     );
     process.exit(1);

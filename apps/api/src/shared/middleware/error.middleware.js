@@ -1,6 +1,7 @@
 import { ZodError } from 'zod';
 import { AppError } from '../errors/AppError.js';
 import { env } from '../../config/env.js';
+import { logger } from '../logger/logger.js';
 export const errorHandler = (error, req, res, next) => {
   if (res.headersSent) {
     return next(error);
@@ -36,7 +37,7 @@ export const errorHandler = (error, req, res, next) => {
   }
 
   if (!isProd) {
-    console.error('ErrorHandler:', {
+    logger.error('ErrorHandler:', {
       path: req.path,
       method: req.method,
       statusCode,
