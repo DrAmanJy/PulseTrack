@@ -1,11 +1,12 @@
 import { ZodError } from 'zod';
 import { AppError } from '../errors/AppError.js';
+import { env } from '../../config/env.js';
 export const errorHandler = (error, req, res, next) => {
   if (res.headersSent) {
     return next(error);
   }
 
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd = env.NODE_ENV === 'production';
 
   let statusCode = 500;
   // let code = 'not_defined';

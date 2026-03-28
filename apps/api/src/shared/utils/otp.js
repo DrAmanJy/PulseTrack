@@ -1,6 +1,7 @@
 import crypto from 'crypto';
+import { env } from '../../config/env';
 
-export const generateNumericOTP = (length = 6) => {
+export const generateNumericOTP = (length = env.OTP_LENGTH) => {
   const min = Math.pow(10, length - 1);
   const max = Math.pow(10, length) - 1;
 

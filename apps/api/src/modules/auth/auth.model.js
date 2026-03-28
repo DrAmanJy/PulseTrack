@@ -3,6 +3,7 @@ import { model, Schema } from 'mongoose';
 import crypto from 'crypto';
 import { generateNumericOTP } from '../../shared/utils/otp.js';
 import { hashToken } from '../../shared/utils/hashToken.js';
+import { env } from '../../config/env.js';
 
 const userSchema = new Schema(
   {
@@ -78,10 +79,7 @@ const userSchema = new Schema(
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password') || !this.password) return;
-  const saltRounds = Number.parseInt(
-    process.env.BCRYPT_SALT_ROUNDS || '10',
-    10,
-  );
+  const saltRounds = Number.parseInt(env.BCRYPT_SALT_ROUNDS, 10);
   this.password = await hash(this.password, saltRounds);
 });
 
@@ -100,13 +98,13 @@ userSchema.methods.comparePassword = async function (inputPassword) {
 
 userSchema.methods.generateOtp = async function () {
   const verifyCode = generateNumericOTP(6);
-  const baseSalt = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
+  const baseSalt = Number.parseInt(env.BCRYPT_SALT_ROUNDS, 10);
   const otpSaltRounds = Math.max(Math.floor(baseSalt / 2), 4);
 
   const hashVerifyCode = await hash(verifyCode, otpSaltRounds);
   this.otp = {
     code: hashVerifyCode,
-    expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    expiresAt: new Date(Date.now() + env.OTP_EXPIRES_MINUTES * 60 * 1000),
   };
   return verifyCode;
 };
