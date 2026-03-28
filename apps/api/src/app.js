@@ -8,6 +8,8 @@ import { AppError } from './shared/errors/AppError.js';
 
 import { globalLimiter } from './shared/middleware/rateLimiter.middleware.js';
 import { errorHandler } from './shared/middleware/error.middleware.js';
+import { AppError } from './shared/errors/AppError.js';
+import { globalLimiter } from './shared/middleware/rateLimiter.middleware.js';
 
 // ==========================================
 // 4. ROUTERS
