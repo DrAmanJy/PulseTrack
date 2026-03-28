@@ -1,0 +1,32 @@
+language: 'en-US'
+
+profile: 'chill'
+
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - 'main'
+      - 'develop'
+
+  request_changes_workflow: false
+
+  high_level_summary: true
+
+  poem: true
+
+  review_status: true
+
+  collapse_walkthrough: false
+
+chat:
+  auto_reply: true
+
+directions: |
+  You are reviewing a modern Node.js backend application built with Express.
+  Please focus on the following priorities:
+  1. Security: Look for missing Zod validations, NoSQL injections, and missing Helmet/CORS headers.
+  2. Performance: Flag any blocking synchronous code or missing database indexes in Mongoose schemas.
+  3. Architecture: Suggest moving business logic out of controllers and into separate utility or service files.
+  4. Best Practices: Ensure proper HTTP status codes are used and errors are passed to the global Express error handler.
