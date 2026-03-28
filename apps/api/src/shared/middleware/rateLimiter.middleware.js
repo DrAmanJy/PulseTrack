@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import { env } from '../../config/env';
+import { env } from '../../config/env.js';
 
 const responseHandler = (req, res, next, options) => {
   const resetTime = req.rateLimit.resetTime;
