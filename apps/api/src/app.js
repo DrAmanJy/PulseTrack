@@ -5,8 +5,16 @@ import { AppError } from './shared/errors/AppError.js';
 import { globalLimiter } from './shared/middleware/rateLimiter.middleware.js';
 import { env } from './config/env.js';
 import { httpLogger } from './shared/logger/httpLogger.js';
+import helmet from 'helmet';
 
 const app = e();
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+  }),
+);
+app.disable('x-powered-by');
 app.use(httpLogger);
 app.use(e.json({ limit: '1kb' }));
 
