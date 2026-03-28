@@ -21,10 +21,13 @@
     "express-rate-limit": "^8.3.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.2",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
     "resend": "^6.9.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "pino-pretty": "^13.1.3"
   }
 }
