@@ -1,17 +1,12 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z
-    .enum(['development', 'production', 'test'])
-    .default('development'),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   APP_NAME: z.string().min(1).default('PulseTrack'),
   APP_PORT: z.coerce.number().positive().default(5000),
   APP_URL: z.url(),
   CLIENT_URL: z.url(),
-  API_PREFIX: z
-    .string()
-    .startsWith('/', 'API_PREFIX must start with /')
-    .default('/api/v1'),
+  API_PREFIX: z.string().startsWith('/', 'API_PREFIX must start with /').default('/api/v1'),
 
   MONGODB_URI: z.url(),
   MONGODB_DB_NAME: z.string().min(1),
@@ -32,9 +27,7 @@ const envSchema = z.object({
   AVATAR_UPLOAD_DIR: z.string().default('uploads/avatars'),
   MAX_FILE_SIZE_MB: z.coerce.number().positive().default(5),
 
-  LOG_LEVEL: z
-    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
-    .default('info'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().max(20).default(5),
   RATE_LIMIT_WINDOW_MINUTES: z.coerce.number().positive().default(15),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().positive().default(100),
