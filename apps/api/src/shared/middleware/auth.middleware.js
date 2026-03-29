@@ -16,8 +16,15 @@ export const requireAuth = async (req, res, next) => {
 
   let decoded;
   try {
-    decoded = jwt.verify(accessToken, env.JWT_ACCESS_SECRET);
-  } catch (error) {
+    decoded = jwt.verify(accessToken, env.JWT_ACCESS_SECRET, {
+      algorithms: ['HS256'],
+    });
+  } catch {
+    throw new AppError('Invalid or expired access token', 401);
+  }
+
+  // Validate decoded payload shape
+  if (!decoded || typeof decoded !== 'object' || !decoded.id) {
     throw new AppError('Invalid or expired access token', 401);
   }
 

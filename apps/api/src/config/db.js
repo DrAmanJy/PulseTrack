@@ -3,7 +3,9 @@ import { logger } from '../shared/logger/logger.js';
 import { env } from './env.js';
 
 export async function connectDb() {
-  const conn = await mongoose.connect(`${env.MONGODB_URI}/${env.MONGODB_DB_NAME}`);
+  const conn = await mongoose.connect(env.MONGODB_URI, {
+    dbName: env.MONGODB_DB_NAME,
+  });
 
   logger.info(`MongoDB Connected: ${conn.connection.host}`);
 

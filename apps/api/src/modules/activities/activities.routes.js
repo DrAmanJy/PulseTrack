@@ -1,19 +1,20 @@
 import { Router } from 'express';
 import { activitySchema, updateActivitySchema } from '@pulsetrack/validations';
 import { validate, validateId } from '../../shared/middleware/validate.middleware.js';
+import { requireAuth } from '../../shared/middleware/auth.middleware.js';
 import * as activityController from './activities.controller.js';
 
 const router = Router();
 
 router
   .route('/')
-  .post(validate(activitySchema), activityController.createActivity)
-  .get(activityController.getActivities);
+  .post(requireAuth, validate(activitySchema), activityController.createActivity)
+  .get(requireAuth, activityController.getActivities);
 
 router
   .route('/:id')
-  .get(validateId, activityController.getActivity)
-  .patch(validateId, validate(updateActivitySchema), activityController.updateActivity)
-  .delete(validateId, activityController.deleteActivity);
+  .get(requireAuth, validateId, activityController.getActivity)
+  .patch(requireAuth, validateId, validate(updateActivitySchema), activityController.updateActivity)
+  .delete(requireAuth, validateId, activityController.deleteActivity);
 
 export default router;

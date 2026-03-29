@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const activitySchema = z.strictObject({
   title: z
-    .string({ required_error: 'Title is required' })
+    .string({ error: 'Title is required' })
     .trim()
     .min(2, 'Title must be at least 2 characters')
     .max(100, 'Title too long'),
@@ -11,8 +11,7 @@ export const activitySchema = z.strictObject({
 
   duration: z.coerce
     .number({
-      required_error: 'Duration is required',
-      invalid_type_error: 'Duration must be a number',
+      error: 'Duration is required',
     })
     .int('Duration must be a whole number')
     .min(1, 'Must be at least 1 minute')
@@ -20,8 +19,7 @@ export const activitySchema = z.strictObject({
 
   date: z.coerce
     .date({
-      required_error: 'Date is required',
-      invalid_type_error: 'Invalid date format',
+      error: 'Date is required',
     })
     .refine((val) => val <= new Date(), {
       message: 'Cannot log activities in the future',

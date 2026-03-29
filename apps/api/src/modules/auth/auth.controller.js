@@ -159,7 +159,7 @@ export const refreshAccessToken = async (req, res) => {
   let decodedToken;
   try {
     decodedToken = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_SECRET);
-  } catch (error) {
+  } catch {
     throw new AppError('Unauthorized: Invalid or expired refresh token.', 401);
   }
 
