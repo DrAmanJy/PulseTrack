@@ -1,6 +1,5 @@
 import { compare, hash } from 'bcrypt';
 import { model, Schema } from 'mongoose';
-import crypto from 'crypto';
 import { generateNumericOTP } from '../../shared/utils/otp.js';
 import { hashToken } from '../../shared/utils/hashToken.js';
 import { env } from '../../config/env.js';

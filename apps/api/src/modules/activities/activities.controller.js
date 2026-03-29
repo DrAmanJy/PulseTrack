@@ -3,11 +3,26 @@ import Activity from './activities.model.js';
 
 export const getActivities = async (req, res) => {
   const { id: userId } = req.user;
-  const activities = await Activity.find({ userId }).sort({ date: -1 }).lean();
+
+  // Parse and validate pagination parameters
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const requestedLimit = parseInt(req.query.limit, 10) || 20;
+  const maxLimit = 100;
+  const limit = Math.min(Math.max(1, requestedLimit), maxLimit);
+
+  const skip = (page - 1) * limit;
+
+  const activities = await Activity.find({ userId })
+    .sort({ date: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
   res.status(200).json({
     status: 'success',
     results: activities.length,
+    page,
+    limit,
     message: 'Activities fetched successfully',
     data: { activities },
   });
