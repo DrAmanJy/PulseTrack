@@ -49,4 +49,5 @@ const activitySchema = new Schema(
 
 activitySchema.index({ userId: 1, date: -1 });
 
-export default model('Activity', activitySchema);
+const Activity = model('Activity', activitySchema);
+export default Activity;
