@@ -13,9 +13,9 @@ import { errorHandler } from './shared/middleware/error.middleware.js';
 // 4. ROUTERS
 // ==========================================
 import authRoutes from './modules/auth/auth.routes.js';
+import activityRoutes from './modules/activities/activities.routes.js';
 
 const app = express();
-
 
 app.use(
   helmet({
@@ -53,6 +53,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(`${env.API_PREFIX}/auth`, authRoutes);
+app.use(`${env.API_PREFIX}/activity`, activityRoutes);
 
 // Catch-all for unhandled routes (404)
 app.use((req, res, next) => {
