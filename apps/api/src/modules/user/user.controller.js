@@ -36,16 +36,20 @@ export const updateEmail = async (req, res) => {
     throw new AppError('The current email provided is incorrect', 400);
   }
 
-  const existingEmail = await User.findOne({ email: newEmail });
-  if (existingEmail) {
-    throw new AppError('This email is already registered to another account', 409);
-  }
+  let updatedUser;
 
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user.id,
-    { email: newEmail },
-    { new: true, runValidators: true },
-  );
+  try {
+    updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { email: newEmail },
+      { new: true, runValidators: true },
+    );
+  } catch (error) {
+    if (error.code === 11000) {
+      throw new AppError('This email is already registered to another account', 409);
+    }
+    throw error;
+  }
 
   if (!updatedUser) throw new AppError('User not found', 404);
 
