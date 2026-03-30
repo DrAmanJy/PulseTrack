@@ -8,51 +8,27 @@ import {
   verifyOtpSchema,
 } from '@pulsetrack/validations';
 import * as authController from './auth.controller.js';
-import {
-  authLimiter,
-  otpLimiter,
-} from '../../shared/middleware/rateLimiter.middleware.js';
+import { authLimiter, otpLimiter } from '../../shared/middleware/rateLimiter.middleware.js';
+import { requireAuth } from '../../shared/middleware/auth.middleware.js';
 
 const routes = Router();
 
 const notImplemented = (req, res) => {
-  return res
-    .status(501)
-    .json({ message: `${req.path} is not implemented yet` });
+  return res.status(501).json({ message: `${req.path} is not implemented yet` });
 };
 
 // --- Local Authentication ---
-routes.post(
-  '/register',
-  authLimiter,
-  validate(registerSchema),
-  authController.registerUser,
-);
-routes.post(
-  '/login',
-  authLimiter,
-  validate(loginSchema),
-  authController.loginUser,
-);
-routes.post('/logout', authController.logoutUser);
+routes.post('/register', authLimiter, validate(registerSchema), authController.registerUser);
+routes.post('/login', authLimiter, validate(loginSchema), authController.loginUser);
+routes.post('/logout', requireAuth, authController.logoutUser);
 
 // --- Google OAuth ---
 routes.get('/google', authLimiter, notImplemented);
 routes.get('/google/callback', authLimiter, notImplemented);
 
 // --- OTP & Password Recovery ---
-routes.post(
-  '/verify',
-  authLimiter,
-  validate(verifyOtpSchema),
-  authController.verifyUser,
-);
-routes.post(
-  '/resend-otp',
-  otpLimiter,
-  validate(emailOnlySchema),
-  authController.resendOtp,
-);
+routes.post('/verify', authLimiter, validate(verifyOtpSchema), authController.verifyUser);
+routes.post('/resend-otp', otpLimiter, validate(emailOnlySchema), authController.resendOtp);
 routes.post(
   '/forgot-password',
   authLimiter,

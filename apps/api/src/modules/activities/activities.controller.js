@@ -12,11 +12,7 @@ export const getActivities = async (req, res) => {
 
   const skip = (page - 1) * limit;
 
-  const activities = await Activity.find({ userId })
-    .sort({ date: -1 })
-    .skip(skip)
-    .limit(limit)
-    .lean();
+  const activities = await Activity.find({ userId }).sort({ date: -1 }).skip(skip).limit(limit);
 
   res.status(200).json({
     status: 'success',
@@ -32,7 +28,7 @@ export const getActivity = async (req, res) => {
   const { id: activityId } = req.params;
   const { id: userId } = req.user;
 
-  const activity = await Activity.findOne({ _id: activityId, userId }).lean();
+  const activity = await Activity.findOne({ _id: activityId, userId });
 
   if (!activity) throw new AppError('Activity not found or unauthorized', 404);
 
