@@ -32,7 +32,7 @@ export const requireAuth = async (req, res, next) => {
 
   if (!user) throw new AppError('The user belonging to this token no longer exists', 401);
 
-  if (!user.isActive) throw new AppError('This user account is inactive', 403);
+  if (!user.isVerified) throw new AppError('This user account is inactive', 403);
 
   req.user = user;
 
