@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 
@@ -14,9 +15,12 @@ import { errorHandler } from './shared/middleware/error.middleware.js';
 // ==========================================
 import authRoutes from './modules/auth/auth.routes.js';
 import activityRoutes from './modules/activities/activities.routes.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
+app.use(cors({ credentials: true }));
+app.use(cookieParser());
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
