@@ -59,16 +59,17 @@ const userSchema = new Schema(
   {
     versionKey: false,
     timestamps: true,
-    virtuals: true,
     toJSON: {
+      virtuals: true,
       transform: function (doc, ret) {
         delete ret._id;
         delete ret.password;
         delete ret.otp;
         delete ret.refreshToken;
-        delete ret.resetToken; // 🐛 Fixed: Blocked the reset token from leaking!
+        delete ret.resetToken;
       },
     },
+    toObject: { virtuals: true },
   },
 );
 

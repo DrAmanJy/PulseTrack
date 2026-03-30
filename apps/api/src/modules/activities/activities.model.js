@@ -44,6 +44,14 @@ const activitySchema = new Schema(
   },
   {
     timestamps: true,
+    versionKey: false,
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret._id;
+      },
+    },
+    toObject: { virtuals: true },
   },
 );
 
