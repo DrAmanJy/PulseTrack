@@ -45,10 +45,4 @@ routes.post(
 // --- Token Management ---
 routes.post('/refresh-token', authController.refreshAccessToken);
 
-// --- Protected User Profile Routes (Require Login) ---
-routes.get('/me', notImplemented);
-routes.patch('/me', notImplemented);
-routes.patch('/update-password', notImplemented);
-routes.delete('/me', notImplemented);
-
 export default routes;
