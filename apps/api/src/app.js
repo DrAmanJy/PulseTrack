@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 
 import { env } from './config/env.js';
 import { httpLogger } from './shared/logger/httpLogger.js';
@@ -14,8 +15,8 @@ import { errorHandler } from './shared/middleware/error.middleware.js';
 // 4. ROUTERS
 // ==========================================
 import authRoutes from './modules/auth/auth.routes.js';
+import userRoutes from './modules/user/user.routes.js';
 import activityRoutes from './modules/activities/activities.routes.js';
-import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(`${env.API_PREFIX}/auth`, authRoutes);
+app.use(`${env.API_PREFIX}/user`, userRoutes);
 app.use(`${env.API_PREFIX}/activity`, activityRoutes);
 
 // Catch-all for unhandled routes (404)
