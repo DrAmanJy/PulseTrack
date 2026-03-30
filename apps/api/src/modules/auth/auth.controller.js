@@ -1,7 +1,4 @@
-import {
-  renderResetPasswordEmail,
-  renderVerifyOtpEmail,
-} from '@pulsetrack/emails';
+import { renderResetPasswordEmail, renderVerifyOtpEmail } from '@pulsetrack/emails';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { AppError } from '../../shared/errors/AppError.js';
@@ -44,16 +41,11 @@ export const registerUser = async (req, res) => {
 
   await newUser.save();
 
-  await sendEmail(
-    email,
-    'Your PulseTrack Verification Code',
-    renderVerifyOtpEmail(plainTextOtp),
-  );
+  await sendEmail(email, 'Your PulseTrack Verification Code', renderVerifyOtpEmail(plainTextOtp));
 
   res.status(201).json({
     status: 'success',
-    message:
-      'User registered successfully. Please check your email for the OTP.',
+    message: 'User registered successfully. Please check your email for the OTP.',
     user: newUser,
   });
 };
@@ -116,9 +108,7 @@ export const logoutUser = async (req, res) => {
 export const verifyUser = async (req, res) => {
   const { email, otp } = req.body;
 
-  const existingUser = await User.findOne({ email }).select(
-    '+otp.code +otp.expiresAt',
-  );
+  const existingUser = await User.findOne({ email }).select('+otp.code +otp.expiresAt');
 
   if (!existingUser) throw new AppError('User not found with this email.', 404);
   if (existingUser.isVerified)
@@ -126,8 +116,7 @@ export const verifyUser = async (req, res) => {
 
   const isValidOtp = await existingUser.verifyOtp(otp);
 
-  if (!isValidOtp)
-    throw new AppError('Invalid or expired verification code.', 400);
+  if (!isValidOtp) throw new AppError('Invalid or expired verification code.', 400);
 
   existingUser.isVerified = true;
   existingUser.otp = undefined;
@@ -163,9 +152,7 @@ export const refreshAccessToken = async (req, res) => {
     throw new AppError('Unauthorized: Invalid or expired refresh token.', 401);
   }
 
-  const existingUser = await User.findById(decodedToken.id).select(
-    '+refreshToken',
-  );
+  const existingUser = await User.findById(decodedToken.id).select('+refreshToken');
 
   if (!existingUser) {
     throw new AppError('Unauthorized: User no longer exists.', 401);
