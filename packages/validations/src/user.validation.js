@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import { emailField, nameField, passwordField } from './auth.validation.js';
 
-export const avatarSchema = z.object({
-  mimetype: z.enum(['image/png', 'image/jpeg', 'image/jpg', 'image/webp']),
-  size: z.number().max(5_000_000, 'File must be less than 5MB'),
-});
+export const avatarSchema = z
+  .object({
+    mimetype: z.enum(['image/png', 'image/jpeg', 'image/jpg', 'image/webp']),
+    size: z.number().max(5_000_000, 'File must be less than 5MB'),
+  })
+  .loose()
+  .optional();
 
 export const updateUserSchema = z.strictObject({
   name: nameField.optional(),

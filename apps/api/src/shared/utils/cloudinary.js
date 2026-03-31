@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { env } from '../../config/env.js'; // ✏️ Added .js
+import { env } from '../../config/env.js';
 import fs from 'fs';
 import { logger } from '../logger/logger.js';
 
