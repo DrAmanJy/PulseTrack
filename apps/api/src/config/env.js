@@ -13,7 +13,7 @@ const envSchema = z.object({
 
   CLOUDINARY_NAME: z.string().min(1),
   CLOUDINARY_SECRET: z.string().min(1),
-  CLOUDINARY_KEY: z.number().min(1),
+  CLOUDINARY_KEY: z.coerce.number().min(1),
 
   JWT_ACCESS_SECRET: z.string().min(10, 'Access secret is too short'),
   JWT_ACCESS_EXPIRES_IN: z.string().min(2), // e.g., '15m'
