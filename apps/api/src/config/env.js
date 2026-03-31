@@ -11,6 +11,10 @@ const envSchema = z.object({
   MONGODB_URI: z.url(),
   MONGODB_DB_NAME: z.string().min(1),
 
+  CLOUDINARY_NAME: z.string().min(1),
+  CLOUDINARY_SECRET: z.string().min(1),
+  CLOUDINARY_KEY: z.number().min(1),
+
   JWT_ACCESS_SECRET: z.string().min(10, 'Access secret is too short'),
   JWT_ACCESS_EXPIRES_IN: z.string().min(2), // e.g., '15m'
   JWT_REFRESH_SECRET: z.string().min(10, 'Refresh secret is too short'),
