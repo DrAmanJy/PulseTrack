@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { requireAuth } from '../../shared/middleware/auth.middleware.js';
 import { validate } from '../../shared/middleware/validate.middleware.js';
-import { updateEmailSchema, updatePasswordSchema, updateUserSchema } from '@pulsetrack/validations';
+import {
+  avatarSchema,
+  updateEmailSchema,
+  updatePasswordSchema,
+  updateUserSchema,
+} from '@pulsetrack/validations';
 import * as userController from './user.controller.js';
+import { upload } from '../../shared/middleware/upload.middleware.js';
 
 const router = Router();
 
@@ -13,7 +19,13 @@ const notImplemented = (req, res) => {
 router
   .route('/me')
   .get(requireAuth, userController.getMe)
-  .patch(requireAuth, validate(updateUserSchema), notImplemented)
+  .patch(
+    requireAuth,
+    upload.single('profile'),
+    validate(avatarSchema, 'file'),
+    validate(updateUserSchema),
+    userController.updateMe,
+  )
   .delete(requireAuth, userController.deleteMe);
 
 router.patch(

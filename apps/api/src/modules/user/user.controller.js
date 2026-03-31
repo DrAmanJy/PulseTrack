@@ -1,4 +1,5 @@
 import { AppError } from '../../shared/errors/AppError.js';
+import { uploadImgToCloudinary } from '../../shared/utils/cloudinary.js';
 import User from '../auth/auth.model.js';
 
 export const getMe = async (req, res) => {
@@ -6,6 +7,35 @@ export const getMe = async (req, res) => {
     status: 'success',
     message: 'User successfully fetched',
     data: { user: req.user },
+  });
+};
+
+export const updateMe = async (req, res) => {
+  if (!req.body?.name && !req.file) {
+    throw new AppError('Please provide a name or a profile picture to update.', 400);
+  }
+  const updateData = { ...req.body };
+
+  if (req.file) {
+    const profile = await uploadImgToCloudinary(req.file.path);
+
+    if (profile) {
+      updateData.profileImage = {
+        url: profile.secure_url,
+        publicId: profile.public_id,
+      };
+    }
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, updateData, {
+    returnDocument: 'after',
+    runValidators: true,
+  });
+
+  res.json({
+    status: 'success',
+    message: 'User successfully updated',
+    data: { user: updatedUser },
   });
 };
 
