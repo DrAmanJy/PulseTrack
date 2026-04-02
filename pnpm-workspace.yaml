@@ -1,8 +1,11 @@
 packages:
-  - apps/*
-  - packages/*
+  - 'apps/*'
+  - 'packages/*'
 
 onlyBuiltDependencies:
   - bcrypt
   - esbuild
   - sharp
+
+ignoredBuiltDependencies:
+  - unrs-resolver
