@@ -7,9 +7,7 @@ import { z } from 'zod';
 export const nameField = z
   .string({
     error: (issue) =>
-      issue.input === undefined || issue.input === ''
-        ? 'Name required'
-        : 'Must be a string',
+      issue.input === undefined || issue.input === '' ? 'Name required' : 'Must be a string',
   })
   .trim()
   .min(2, { error: 'Min 2 chars' })
@@ -18,25 +16,21 @@ export const nameField = z
 export const emailField = z
   .email({
     error: (issue) =>
-      issue.input === undefined || issue.input === ''
-        ? 'Email required'
-        : 'Invalid email',
+      issue.input === undefined || issue.input === '' ? 'Email required' : 'Invalid email',
   })
   .trim()
   .toLowerCase();
 
 export const passwordField = z
   .string({
-    error: (issue) =>
-      issue.input === '' ? 'Password required' : 'Must be a string',
+    error: (issue) => (issue.input === '' ? 'Password required' : 'Must be a string'),
   })
   .min(6, { error: 'Min 6 chars' })
   .max(128, { error: 'Max 128 chars' });
 
 export const otpField = z
   .string({
-    error: (issue) =>
-      issue === undefined ? 'otp is required' : 'otp must be a string',
+    error: (issue) => (issue === undefined ? 'otp is required' : 'otp must be a string'),
   })
   .length(6, 'otp must be 6 digits')
   .regex(/^\d+$/, 'otp must contain only numbers');
@@ -72,3 +66,13 @@ export const emailOnlySchema = z.object({
 export const newPasswordOnlySchema = z.object({
   newPassword: passwordField,
 });
+
+export const resetPasswordSchema = z
+  .object({
+    password: passwordField,
+    confirmPassword: passwordField,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
