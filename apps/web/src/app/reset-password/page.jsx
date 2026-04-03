@@ -5,79 +5,81 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-// 🛡️ Importing your specific Field components!
 import FormField from '@/components/FormField';
 import { Field, FieldGroup } from '@/components/ui/field';
 import { resetPasswordSchema } from '@pulsetrack/validations';
+import AuthLayout from '@/components/AuthLayout';
+import { FadeIn } from '@/components/MotionWrapper';
+import { Suspense } from 'react';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
-
-  // Grab the ?token=... from the URL
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
-  // Initialize React Hook Form
   const { control, handleSubmit } = useForm({
     resolver: zodResolver(resetPasswordSchema),
-    defaultValues: {
-      password: '',
-      confirmPassword: '',
-    },
+    defaultValues: { password: '', confirmPassword: '' },
   });
 
   const onSubmit = async (data) => {
-    console.log('🚀 Sending to Express:', {
-      newPassword: data.password,
-      resetToken: token,
-    });
-
-    // On success:
+    console.log('🚀 Sending to Express:', { newPassword: data.password, resetToken: token });
     router.replace('/');
   };
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle>Set new password</CardTitle>
-              <CardDescription>
-                Your new password must be different from previously used passwords.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <FieldGroup>
-                  <FormField
-                    control={control}
-                    label="New Password"
-                    name="password"
-                    type="password"
-                    placeholder="••••••••"
-                  />
+    <Card className="border-none bg-transparent shadow-none">
+      <CardHeader className="text-center">
+        <FadeIn delay={0.1}>
+          <CardTitle className="text-2xl font-semibold tracking-tight">Set new password</CardTitle>
+          <CardDescription>
+            Your new password must be different from previously used passwords.
+          </CardDescription>
+        </FadeIn>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <FadeIn delay={0.2}>
+              <FormField
+                control={control}
+                label="New Password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+              />
+            </FadeIn>
 
-                  <FormField
-                    control={control}
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                  />
+            <FadeIn delay={0.3}>
+              <FormField
+                control={control}
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+              />
+            </FadeIn>
 
-                  <Field className="pt-2">
-                    <Button type="submit" className="w-full">
-                      Reset Password
-                    </Button>
-                  </Field>
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+            <FadeIn delay={0.4}>
+              <Field className="pt-2">
+                <Button type="submit" className="w-full transition-all hover:scale-[1.02]">
+                  Reset Password
+                </Button>
+              </Field>
+            </FadeIn>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <AuthLayout>
+      <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-xl bg-muted/20" />}>
+        <ResetPasswordForm />
+      </Suspense>
+    </AuthLayout>
   );
 }
