@@ -3,67 +3,64 @@ import FormField from '@/components/FormField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldGroup } from '@/components/ui/field';
-import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { emailOnlySchema } from '@pulsetrack/validations';
 import Link from 'next/link';
-import React from 'react';
 import { useForm } from 'react-hook-form';
+import AuthLayout from '@/components/AuthLayout';
+import { FadeIn } from '@/components/MotionWrapper';
 
-const page = () => {
+const ForgotPasswordPage = () => {
   const {
-    register,
     control,
     handleSubmit,
-    formState: { errors },
   } = useForm({
     resolver: zodResolver(emailOnlySchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: '' },
   });
   const onSubmit = (data) => {
     console.log(data);
   };
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <div className={cn('flex flex-col gap-6')}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Reset your password</CardTitle>
-              <CardDescription>
-                Enter your email address and a reset link will be sent to your inbox.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <FieldGroup>
-                  <FormField
-                    control={control}
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="developer@example.com"
-                  />
+    <AuthLayout>
+      <Card className="border-none bg-transparent shadow-none">
+        <CardHeader>
+          <FadeIn delay={0.1}>
+            <CardTitle className="text-2xl font-semibold tracking-tight">Reset your password</CardTitle>
+            <CardDescription>
+              Enter your email address and a reset link will be sent to your inbox.
+            </CardDescription>
+          </FadeIn>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FieldGroup>
+              <FadeIn delay={0.2}>
+                <FormField
+                  control={control}
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="developer@example.com"
+                />
+              </FadeIn>
 
-                  <Field className="flex flex-col gap-2 pt-2">
-                    {/* Primary action */}
-                    <Button type="submit" className="w-full">
-                      Send Reset Link
-                    </Button>
-
-                    {/* Secondary action (Routing back to sign in) */}
-                    <Button variant="outline" type="button" className="w-full" asChild>
-                      <Link href="/signin">Back to Login</Link>
-                    </Button>
-                  </Field>
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+              <FadeIn delay={0.3}>
+                <Field className="flex flex-col gap-2 pt-2">
+                  <Button type="submit" className="w-full transition-all hover:scale-[1.02]">
+                    Send Reset Link
+                  </Button>
+                  <Button variant="outline" type="button" className="w-full bg-background/50 backdrop-blur-sm transition-all hover:scale-[1.02] hover:bg-background/80" asChild>
+                    <Link href="/signin">Back to Login</Link>
+                  </Button>
+                </Field>
+              </FadeIn>
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
+    </AuthLayout>
   );
 };
 
-export default page;
+export default ForgotPasswordPage;
