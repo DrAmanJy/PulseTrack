@@ -2,7 +2,7 @@ import { AppError } from '../../shared/errors/AppError.js';
 import Activity from './activities.model.js';
 
 export const getActivities = async (req, res) => {
-  const { id: userId } = req.user;
+  const userId = req.userId;
 
   // Parse and validate pagination parameters
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -26,7 +26,7 @@ export const getActivities = async (req, res) => {
 
 export const getActivity = async (req, res) => {
   const { id: activityId } = req.params;
-  const { id: userId } = req.user;
+  const userId = req.userId;
 
   const activity = await Activity.findOne({ _id: activityId, userId });
 
@@ -40,7 +40,7 @@ export const getActivity = async (req, res) => {
 };
 
 export const createActivity = async (req, res) => {
-  const { id: userId } = req.user;
+  const userId = req.userId;
 
   const newActivity = await Activity.create({
     ...req.body,
@@ -56,7 +56,7 @@ export const createActivity = async (req, res) => {
 
 export const updateActivity = async (req, res) => {
   const { id: activityId } = req.params;
-  const { id: userId } = req.user;
+  const userId = req.userId;
 
   const updatedActivity = await Activity.findOneAndUpdate(
     { _id: activityId, userId },
@@ -79,7 +79,7 @@ export const updateActivity = async (req, res) => {
 
 export const deleteActivity = async (req, res) => {
   const { id: activityId } = req.params;
-  const { id: userId } = req.user;
+  const userId = req.userId;
 
   const deletedActivity = await Activity.findOneAndDelete({
     _id: activityId,

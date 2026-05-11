@@ -2,7 +2,7 @@ import Activity from '../activities/activities.model.js';
 
 export const getCategoryStats = async (req, res) => {
   const categories = await Activity.aggregate([
-    { $match: { userId: req.user._id } },
+    { $match: { userId: req.userId } },
     {
       $group: {
         _id: '$category',
@@ -28,7 +28,7 @@ export const getWeeklyTrend = async (req, res) => {
   const trends = await Activity.aggregate([
     {
       $match: {
-        userId: req.user._id,
+        userId: req.userId,
         date: { $gte: sevenDaysAgo },
       },
     },
@@ -55,7 +55,7 @@ export const getDashboardSummary = async (req, res) => {
   const [summary] = await Activity.aggregate([
     {
       $match: {
-        userId: req.user._id,
+        userId: req.userId,
         date: { $gte: sevenDaysAgo },
       },
     },

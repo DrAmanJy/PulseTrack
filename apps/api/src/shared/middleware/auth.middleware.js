@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { AppError } from '../errors/AppError.js';
-import User from '../../modules/auth/auth.model.js';
 import { env } from '../../config/env.js';
 
 export const requireAuth = async (req, res, next) => {
@@ -16,25 +15,19 @@ export const requireAuth = async (req, res, next) => {
 
   let decoded;
   try {
-    decoded = jwt.verify(accessToken, env.JWT_ACCESS_SECRET, {
-      algorithms: ['HS256'],
+    decoded = jwt.verify(accessToken, env.JWT_ACCESS_PUBLIC_KEY, {
+      algorithms: ['RS256'],
     });
   } catch {
     throw new AppError('Invalid or expired access token', 401);
   }
 
-  // Validate decoded payload shape
-  if (!decoded || typeof decoded !== 'object' || !decoded.id) {
-    throw new AppError('Invalid or expired access token', 401);
-  }
+  console.log(decoded);
 
-  const user = await User.findById(decoded.id);
+  if (decoded.iss !== env.AUTH_SERVICE_NAME) throw new AppError('', 401);
+  if (decoded.aud !== env.APP_NAME) throw new AppError('', 401);
 
-  if (!user) throw new AppError('The user belonging to this token no longer exists', 401);
-
-  if (!user.isVerified) throw new AppError('This user account is unverified', 403);
-
-  req.user = user;
+  req.userId = decoded.sub;
 
   next();
 };
