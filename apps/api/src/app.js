@@ -10,18 +10,23 @@ import { AppError } from './shared/errors/AppError.js';
 
 import { globalLimiter } from './shared/middleware/rateLimiter.middleware.js';
 import { errorHandler } from './shared/middleware/error.middleware.js';
+import { authProxy } from './shared/middleware/proxy.middleware.js';
 
-// ==========================================
-// 4. ROUTERS
-// ==========================================
-import authRoutes from './modules/auth/auth.routes.js';
-import userRoutes from './modules/user/user.routes.js';
+// Routers
 import activityRoutes from './modules/activities/activities.routes.js';
 import analyticsRoutes from './modules/analytics/analytics.routes.js';
 
 const app = express();
 
-app.use(cors({ credentials: true }));
+app.set('trust proxy', 1);
+
+app.use(
+  cors({
+    origin: env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  }),
+);
+
 app.use(cookieParser());
 app.use(
   helmet({
@@ -30,45 +35,42 @@ app.use(
   }),
 );
 app.disable('x-powered-by');
-
-// Logging
 app.use(httpLogger);
 
 app.use(
   compression({
-    threshold: 1024, // Only compress responses > 1KB
+    threshold: 1024,
     filter: (req, res) => {
-      if (req.headers['x-no-compression']) {
-        return false;
-      }
+      if (req.headers['x-no-compression']) return false;
       return compression.filter(req, res);
     },
   }),
 );
 
+app.use('/', authProxy);
+
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
+// 5. GLOBAL RATE LIMITER
 app.use(globalLimiter);
 
+// 6. LOCAL GATEWAY ROUTES
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'success',
-    message: 'Welcome to the PulseTrack API',
+    message: 'Welcome to the PulseTrack API Gateway',
   });
 });
 
-app.use(`${env.API_PREFIX}/auth`, authRoutes);
-app.use(`${env.API_PREFIX}/user`, userRoutes);
 app.use(`${env.API_PREFIX}/activity`, activityRoutes);
 app.use(`${env.API_PREFIX}/analytics`, analyticsRoutes);
 
-// Catch-all for unhandled routes (404)
+// 7. ERROR HANDLING
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Global Error Handler
 app.use(errorHandler);
 
 export default app;

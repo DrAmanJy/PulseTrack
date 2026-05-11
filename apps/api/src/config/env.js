@@ -3,8 +3,10 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   APP_NAME: z.string().min(1).default('PulseTrack'),
+  AUTH_SERVICE_NAME: z.string().min(1).default('authcore'),
   APP_PORT: z.coerce.number().positive().default(5000),
   APP_URL: z.url(),
+  AUTH_SERVICE_URL: z.url(),
   CLIENT_URL: z.url(),
   API_PREFIX: z.string().startsWith('/', 'API_PREFIX must start with /').default('/api/v1'),
 
@@ -15,6 +17,7 @@ const envSchema = z.object({
   CLOUDINARY_SECRET: z.string().min(1),
   CLOUDINARY_KEY: z.coerce.number().min(1),
 
+  JWT_ACCESS_PUBLIC_KEY: z.string().min(50),
   JWT_ACCESS_SECRET: z.string().min(10, 'Access secret is too short'),
   JWT_ACCESS_EXPIRES_IN: z.string().min(2), // e.g., '15m'
   JWT_REFRESH_SECRET: z.string().min(10, 'Refresh secret is too short'),
