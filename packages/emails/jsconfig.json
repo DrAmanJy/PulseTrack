@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "composite": false,
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "strictNullChecks": true
+  },
+  "include": ["**/*.tsx", "**/*.jsx", "**/*.js"],
+  "exclude": ["node_modules", ".react-email"]
+}
