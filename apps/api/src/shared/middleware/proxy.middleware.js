@@ -1,8 +1,9 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { env } from '../../config/env.js';
+import { logger } from '../logger/logger.js';
 
 export const authProxy = createProxyMiddleware({
-  pathFilter: ['/auth', '/user'],
+  pathFilter: ['/auth', '/user', '/session'],
 
   target: env.AUTH_SERVICE_URL,
   changeOrigin: true,
@@ -10,9 +11,9 @@ export const authProxy = createProxyMiddleware({
   on: {
     proxyReq: (proxyReq, req, res) => {
       proxyReq.setHeader('x-target-audience', env.APP_NAME);
-      proxyReq.setHeader('x-forwarded-for', req.ip || req.connection.remoteAddress);
+      proxyReq.setHeader('x-forwarded-for', req.ip || req.socket.remoteAddress);
 
-      console.log(
+      logger.info(
         `[Gateway] Proxying Full Path: ${req.originalUrl} -> ${env.AUTH_SERVICE_URL}${req.url}`,
       );
     },
