@@ -22,10 +22,8 @@ export const requireAuth = async (req, res, next) => {
     throw new AppError('Invalid or expired access token', 401);
   }
 
-  console.log(decoded);
-
-  if (decoded.iss !== env.AUTH_SERVICE_NAME) throw new AppError('', 401);
-  if (decoded.aud !== env.APP_NAME) throw new AppError('', 401);
+  if (decoded.iss !== env.AUTH_SERVICE_NAME) throw new AppError('Invalid token issuer', 401);
+  if (decoded.aud !== env.APP_NAME) throw new AppError('Invalid token audience', 401);
 
   req.userId = decoded.sub;
 
