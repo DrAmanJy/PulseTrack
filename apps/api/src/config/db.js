@@ -1,12 +1,19 @@
 import mongoose from 'mongoose';
+import { logger } from '../shared/logger/logger.js';
+import { env } from './env.js';
 
 export async function connectDb() {
-  try {
-    const conn = await mongoose.connect(
-      `${process.env.MONGODB_URI}/${process.env.MONGODB_DB_NAME}`,
-    );
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-  }
+  const conn = await mongoose.connect(env.MONGODB_URI, {
+    dbName: env.MONGODB_DB_NAME,
+  });
+
+  logger.info(`MongoDB Connected: ${conn.connection.host}`);
+
+  mongoose.connection.on('error', (err) => {
+    logger.error({ err }, 'MongoDB connection error!');
+  });
+
+  mongoose.connection.on('disconnected', () => {
+    logger.warn('MongoDB disconnected. Attempting to reconnect...');
+  });
 }

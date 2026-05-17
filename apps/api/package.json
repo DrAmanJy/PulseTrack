@@ -1,11 +1,11 @@
 {
-  "name": "api",
+  "name": "@pulsetrack/api",
   "version": "1.0.0",
-  "description": "",
+  "description": "PulseTrack Express API",
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "run": "node --env-file=.env src/server.js",
+    "start": "node --env-file=.env src/server.js",
     "dev": "nodemon --env-file=.env src/server.js"
   },
   "keywords": [],
@@ -13,12 +13,27 @@
   "license": "ISC",
   "packageManager": "pnpm@10.28.2",
   "dependencies": {
+    "@pulsetrack/emails": "workspace:*",
+    "@pulsetrack/validations": "workspace:*",
     "bcrypt": "^6.0.0",
-    "dotenv": "^17.3.1",
+    "cloudinary": "^2.9.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
-    "mongoose": "^9.3.2"
+    "express-rate-limit": "^8.3.1",
+    "helmet": "^8.1.0",
+    "http-proxy-middleware": "^4.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.3.2",
+    "multer": "^2.1.1",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "resend": "^6.9.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "pino-pretty": "^13.1.3"
   }
 }

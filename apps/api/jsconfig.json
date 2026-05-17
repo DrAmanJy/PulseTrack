@@ -2,9 +2,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "target": "es2022",
-    "checkJs": false,
     "strict": true,
-    "paths": { "@/*": ["./src/*"] },
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },

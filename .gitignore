@@ -3,29 +3,43 @@
 # =========================================
 node_modules/
 .pnpm-store/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # =========================================
-# Environment Variables
+# Environment Variables & Security
 # =========================================
-# Never commit your .env files!
+# Never commit your .env files or certificates!
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env*
+*.pem
 
 # =========================================
-# Build Outputs (React & Express)
+# Build Outputs (React, Next.js, & Express)
 # =========================================
-# React (Vite/Create React App/Next.js)
-/app/react/dist/
-/app/react/build/
-/app/react/.next/
-/app/react/out/
+dist/
+build/
+.next/
+out/
+.out/
+/app/api/dist/
+/app/api/build/
+.vercel/
 
-# Express
-/app/express/dist/
-/app/express/build/
+# =========================================
+# Next.js & TypeScript Specifics
+# =========================================
+*.tsbuildinfo
+next-env.d.ts
 
 # =========================================
 # Logs and Debugging
